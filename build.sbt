@@ -3,13 +3,13 @@ import xerial.sbt.Sonatype._
 
 val versionV = "0.0.1"
 
-ThisBuild / version      := versionV
+ThisBuild / version := versionV
 ThisBuild / scalaVersion := Versions.dotty
 
-ThisBuild / githubWorkflowTargetTags           ++= Seq("v*")
+ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")))
-ThisBuild / githubWorkflowPublish               := Seq(WorkflowStep.Sbt(List("release")))
-ThisBuild / githubWorkflowJavaVersions          := Seq("adopt@1.11")
+ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release")))
+ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.11")
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(List("compile"))
 )
@@ -17,17 +17,17 @@ ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
     List("release"),
     env = Map(
-      "PGP_PASSPHRASE"    -> "${{ secrets.PGP_PASSPHRASE }}",
-      "PGP_SECRET"        -> "${{ secrets.PGP_SECRET }}",
+      "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
+      "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
       "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
       "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
     )
   )
 )
 ThisBuild / credentials += Credentials("Sonatype Nexus Repository Manager",
-                                       "oss.sonatype.org",
-                                       sys.env.getOrElse("SONATYPE_USERNAME", ""),
-                                       sys.env.getOrElse("SONATYPE_PASSWORD", ""))
+  "oss.sonatype.org",
+  sys.env.getOrElse("SONATYPE_USERNAME", ""),
+  sys.env.getOrElse("SONATYPE_PASSWORD", ""))
 
 ThisBuild / scmInfo := Some(
   ScmInfo(url("https://github.com/vlmiroshnikov/aero3"), "git@github.com:vlmiroshnikov/aero3.git")
@@ -39,7 +39,7 @@ ThisBuild / developers ++= List(
     Developer(username, fullName, s"@$username", url(s"https://github.com/$username"))
 }
 
-ThisBuild / organization     := "io.github.vlmiroshnikov"
+ThisBuild / organization := "io.github.vlmiroshnikov"
 ThisBuild / organizationName := "vlmiroshnikov"
 
 lazy val release = taskKey[Unit]("Release")
@@ -47,12 +47,12 @@ addCommandAlias("release", "; reload; project /; publishSigned; sonatypeBundleRe
 
 def publishSettings = Seq(
   sonatypeProfileName := "io.github.vlmiroshnikov",
-  publishMavenStyle   := true,
+  publishMavenStyle := true,
   licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0")),
   sonatypeProjectHosting := Some(GitHubHosting("vlmiroshnikov", "aero3", "vlmiroshnikov@gmai.com")),
-  homepage               := Some(url("https://github.com/vlmiroshnikov/aero3")),
-  publishTo              := sonatypePublishToBundle.value,
-  useGpgPinentry         := Option(System.getenv("PGP_PASSPHRASE")).isDefined
+  homepage := Some(url("https://github.com/vlmiroshnikov/aero3")),
+  publishTo := sonatypePublishToBundle.value,
+  useGpgPinentry := Option(System.getenv("PGP_PASSPHRASE")).isDefined
 )
 
 lazy val aero = project
@@ -60,32 +60,32 @@ lazy val aero = project
   .settings(scalaVersion := Versions.dotty)
   .aggregate(`aero-core`, example)
   .settings(
-    publish         := {},
-    publishLocal    := {},
+    publish := {},
+    publishLocal := {},
     publishArtifact := false,
-    publish / skip  := true
+    publish / skip := true
   )
 
 lazy val `aero-core` = project
   .in(file("aero-core"))
   .settings(
-    name                 := "aero-core",
-    scalaVersion         := Versions.dotty,
-    libraryDependencies ++= cats ++ munit
+    name := "aero-core",
+    scalaVersion := Versions.dotty,
+    libraryDependencies ++= cats ++ catsEffect ++ munit ++ munitEffect ++ aerospike
   )
   .settings(publishSettings)
 
 
 lazy val example = project
-  .in(file("aero-test"))
+  .in(file("example"))
   .dependsOn(`aero-core`)
   .settings(
-    name                 := "aero-example",
-    libraryDependencies ++= munit ++ catsEffect
+    name := "example",
+    libraryDependencies ++= munit ++ munitEffect ++ catsEffect ++ cats
   )
   .settings(
-    publish         := {},
-    publishLocal    := {},
+    publish := {},
+    publishLocal := {},
     publishArtifact := false,
-    publish / skip  := true
+    publish / skip := true
   )
