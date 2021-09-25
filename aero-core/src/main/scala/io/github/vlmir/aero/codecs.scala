@@ -40,4 +40,3 @@ object as:
     override def decoder(): Decoder[Repr] = recordDecoder
   }
 
-trait Codec[T] extends Encoder[T] with Decoder[T]
