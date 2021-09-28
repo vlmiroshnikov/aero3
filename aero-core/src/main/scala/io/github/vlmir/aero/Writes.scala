@@ -1,4 +1,4 @@
-package io.github.vlmir.aero.reads
+package io.github.vlmir.aero.writes
 
 import cats.*
 import cats.syntax.all.*
@@ -10,24 +10,19 @@ import io.github.vlmir.aero.AeroClient.*
 import io.github.vlmir.aero.codecs.*
 import io.github.vlmir.aero.utils.Listeners
 
-import scala.util.Try
-
-def get[F[_], K](
+def put[F[_], K, V](
                   key: K,
-                  magnet: DecoderMagnet
+                  value: V
                 )(using
                   ac: AeroClient[F],
                   keyEncoder: Encoder[K],
-                  schema: Schema): F[Option[magnet.Repr]] = {
-  ac.run[Option[magnet.Repr]] { ctx =>
-
-    val decoder = magnet.decoder()
-    val listener = Listeners.recordOptListener(ctx.callback, decoder.decode(_))
-    val policy = ctx.client.readPolicyDefault
+                  recordEncoder: RecordEncoder[V],
+                  schema: Schema): F[Unit] = {
+  ac.run[Unit] { ctx =>
+    val policy = ctx.client.writePolicyDefault
     val keyV = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
-
-    Either.catchNonFatal(ctx.client.get(ctx.loop, listener, policy, keyV, decoder.bins *))
+    Either.catchNonFatal(ctx.client.put(ctx.loop, Listeners.writeListener(ctx.callback),  policy, keyV, recordEncoder.encode(value) *))
       .leftMap(e => ctx.callback(e.asLeft))
+    ???
   }
 }
-
