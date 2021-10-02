@@ -23,6 +23,5 @@ def put[F[_], K, V](
     val keyV = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
     Either.catchNonFatal(ctx.client.put(ctx.loop, Listeners.writeListener(ctx.callback),  policy, keyV, recordEncoder.encode(value) *))
       .leftMap(e => ctx.callback(e.asLeft))
-    ???
   }
 }

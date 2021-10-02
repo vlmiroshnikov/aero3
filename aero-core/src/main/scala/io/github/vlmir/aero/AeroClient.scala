@@ -29,6 +29,7 @@ object AeroClient {
     def init = Sync[F].delay {
       val cp = new ClientPolicy() {
         timeout = 5.seconds.toSeconds.toInt
+        tendInterval = 5.seconds.toSeconds.toInt
         eventLoops = new NioEventLoops(policy.eventPolicy, -1)
       }
       val ac = new AerospikeClient(cp, hosts.map(h => new Host(h, port))*)

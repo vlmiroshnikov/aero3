@@ -10,7 +10,7 @@ import munit.*
 
 class IntergrationSuite extends CatsEffectSuite {
 
-  val client = ResourceFixture(AeroClient(List("localhost"), 3000))
+  val client = ResourceFixture(AeroClient(List("127.0.0.1"), 3000))
 
   case class Rec(intBin: Int, sbin: String) derives RecordDecoder, RecordEncoder
 
@@ -19,9 +19,9 @@ class IntergrationSuite extends CatsEffectSuite {
   client.test("get") { (ac: AeroClient[IO]) =>
     given AeroClient[IO] = ac
 
-    val rec = Rec(1, "1")
+    val rec = Rec(1, "2")
     for  {
-      _ <- put("key", rec)
+      //_ <- put("key", rec)
       r <- get("key", as[Rec])
     } yield assertEquals(r, rec.some)
   }

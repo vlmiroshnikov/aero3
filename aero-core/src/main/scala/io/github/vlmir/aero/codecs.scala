@@ -81,7 +81,6 @@ object Decoder:
 
 trait RecordDecoder[T]:
   def bins: List[String]
-
   def decode(r: Record): Result[T]
 
 object RecordDecoder:
