@@ -1,16 +1,15 @@
-package io.github.vlmir.aero.utils
+package io.github.vlmiroshnikov.aero.codecs
 
 import cats.syntax.either.*
 import com.aerospike.client.*
 import com.aerospike.client.async.EventLoop
 import com.aerospike.client.listener.*
-import io.github.vlmir.aero.*
-import io.github.vlmir.aero.AeroClient.*
-import io.github.vlmir.aero.codecs.*
-
-import scala.jdk.CollectionConverters.*
+import io.github.vlmiroshnikov.aero.*
+import io.github.vlmiroshnikov.aero.AeroClient.*
+import io.github.vlmiroshnikov.aero.codecs.*
 
 import java.util.concurrent.LinkedBlockingQueue
+import scala.jdk.CollectionConverters.*
 
 object Listeners {
 

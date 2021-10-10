@@ -1,13 +1,14 @@
-package io.github.vlmir.aero
+package io.github.vlmiroshnikov.aero
 
 import cats.*
 import cats.effect.IO
 import cats.syntax.all.*
-import com.aerospike.client.cdt.{ MapOperation, MapPolicy }
+import com.aerospike.client.cdt.{MapOperation, MapPolicy}
 import com.aerospike.client.query.Statement
-import io.github.vlmir.aero.codecs.*
-import io.github.vlmir.aero.reads.*
-import io.github.vlmir.aero.writes.*
+import io.github.vlmiroshnikov.aero.codecs.*
+import io.github.vlmiroshnikov.aero.reads.*
+import io.github.vlmiroshnikov.aero.writes.*
+import io.github.vlmiroshnikov.aero.codecs.{RecordDecoder, RecordEncoder, asValue}
 import munit.*
 
 class IntergrationSuite extends CatsEffectSuite {

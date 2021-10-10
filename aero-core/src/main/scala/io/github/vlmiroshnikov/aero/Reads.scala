@@ -1,4 +1,4 @@
-package io.github.vlmir.aero.reads
+package io.github.vlmiroshnikov.aero.reads
 
 import cats.*
 import cats.syntax.all.*
@@ -6,14 +6,11 @@ import com.aerospike.client.*
 import com.aerospike.client.async.EventLoop
 import com.aerospike.client.listener.RecordListener
 import com.aerospike.client.query.Statement
-
-import io.github.vlmir.aero.*
-import io.github.vlmir.aero.AeroClient.*
-import io.github.vlmir.aero.codecs.*
-import io.github.vlmir.aero.utils.Listeners
+import io.github.vlmiroshnikov.aero.codecs.*
+import io.github.vlmiroshnikov.aero.{ AeroClient, DecoderMagnet, Schema }
+import io.github.vlmiroshnikov.aero.codecs.{ Encoder, Listeners }
 
 import scala.jdk.CollectionConverters.*
-
 import scala.util.Try
 
 def get[F[_], K](

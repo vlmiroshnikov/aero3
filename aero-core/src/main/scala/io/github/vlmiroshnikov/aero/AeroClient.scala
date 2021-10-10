@@ -1,4 +1,4 @@
-package io.github.vlmir.aero
+package io.github.vlmiroshnikov.aero
 
 import cats.*
 import cats.effect.*

@@ -1,10 +1,9 @@
-package io.github.vlmir.aero
+package io.github.vlmiroshnikov.aero
 
-import io.github.vlmir.aero.codecs.RecordDecoder
+import io.github.vlmiroshnikov.aero.codecs.RecordDecoder
 
 trait DecoderMagnet:
   type Repr
-
   def decoder(): RecordDecoder[Repr]
 
 object DecoderMagnet:
@@ -18,6 +17,5 @@ object as:
 
   def apply[T](using recordDecoder: RecordDecoder[T]) = new DecoderMagnet {
     override type Repr = T
-
     override def decoder(): RecordDecoder[Repr] = recordDecoder
   }

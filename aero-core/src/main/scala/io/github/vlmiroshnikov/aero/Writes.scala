@@ -1,4 +1,4 @@
-package io.github.vlmir.aero.writes
+package io.github.vlmiroshnikov.aero.writes
 
 import cats.*
 import cats.syntax.all.*
@@ -6,10 +6,9 @@ import com.aerospike.client.*
 import com.aerospike.client.async.EventLoop
 import com.aerospike.client.cdt.MapOperation
 import com.aerospike.client.listener.RecordListener
-import io.github.vlmir.aero.*
-import io.github.vlmir.aero.AeroClient.*
-import io.github.vlmir.aero.codecs.*
-import io.github.vlmir.aero.utils.Listeners
+import io.github.vlmiroshnikov.aero.codecs.*
+import io.github.vlmiroshnikov.aero.{ AeroClient, DecoderMagnet, Schema }
+import io.github.vlmiroshnikov.aero.codecs.{ Encoder, Listeners, RecordEncoder }
 
 def put[F[_], K, V](
     key: K,
