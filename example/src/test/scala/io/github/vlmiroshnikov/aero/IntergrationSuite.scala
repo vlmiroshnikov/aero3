@@ -19,7 +19,7 @@ class IntergrationSuite extends CatsEffectSuite {
 
   given Schema("test", "test")
 
-  client.test("get") { (ac: AeroClient[IO]) =>
+  client.test("get".ignore) { (ac: AeroClient[IO]) =>
     given AeroClient[IO] = ac
     val rec              = Rec(1, "3")
     for {
