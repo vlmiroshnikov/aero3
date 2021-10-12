@@ -22,5 +22,9 @@ object Decoder:
     override def decode(r: Record, name: String): Result[R] = Try(decoderF(r, name)).toEither
   }
 
+  def fromEither[R](decoderF: (Record, String) => Either[Throwable, R]) = new Decoder[R] {
+    override def decode(r: Record, name: String): Result[R] = decoderF(r, name)
+  }
+
   given Decoder[Int]    = instance((r, n) => r.getInt(n))
   given Decoder[String] = instance((r, n) => r.getString(n))
