@@ -13,7 +13,7 @@ import munit.*
 
 class IntergrationSuite extends CatsEffectSuite {
 
-  val client = ResourceFixture(AeroClient(List("localhost"), 3000))
+  val client = ResourceFixture(AeroClient(List("192.168.1.35"), 3000))
 
   case class Rec(intBin: Int, sbin: String) derives RecordDecoder, RecordEncoder
 

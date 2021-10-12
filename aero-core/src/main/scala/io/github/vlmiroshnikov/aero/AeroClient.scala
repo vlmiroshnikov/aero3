@@ -26,7 +26,7 @@ object AeroClient {
       port: Int,
       policy: Policy = Policy.default): Resource[F, AeroClient[F]] = {
 
-    def init = Sync[F].delay {
+    val init  = Async[F].blocking {
       val cp = new ClientPolicy() {
         timeout = 5.seconds.toSeconds.toInt
         tendInterval = 5.seconds.toSeconds.toInt
@@ -36,8 +36,9 @@ object AeroClient {
       (ac, cp)
     }
 
+
     Resource
-      .make[F, (AerospikeClient, ClientPolicy)](init)(rs => Sync[F].delay(rs._1.close()))
+      .make[F, (AerospikeClient, ClientPolicy)](init)(rs => Async[F].blocking(rs._1.close()))
       .map { (ac, cp) =>
         new AeroClient[F] {
           override def run[R](func: Context[R] => Unit): F[R] =

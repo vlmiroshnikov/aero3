@@ -1,25 +1,32 @@
 package io.github.vlmiroshnikov.aero.writes
 
+import scala.concurrent.duration.*
 import cats.*
 import cats.syntax.all.*
 import com.aerospike.client.*
 import com.aerospike.client.async.EventLoop
 import com.aerospike.client.cdt.MapOperation
 import com.aerospike.client.listener.RecordListener
+import com.aerospike.client.policy.WritePolicy
 import io.github.vlmiroshnikov.aero.codecs.*
-import io.github.vlmiroshnikov.aero.{ AeroClient, DecoderMagnet, Schema }
-import io.github.vlmiroshnikov.aero.codecs.{ Encoder, Listeners, RecordEncoder }
+import io.github.vlmiroshnikov.aero.{AeroClient, DecoderMagnet, Schema}
+import io.github.vlmiroshnikov.aero.codecs.{Encoder, Listeners, RecordEncoder}
 
 def put[F[_], K, V](
     key: K,
-    value: V
+    value: V,
+    ttl: Option[FiniteDuration] = None
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],
     recordEncoder: RecordEncoder[V],
     schema: Schema): F[Unit] = {
   ac.run[Unit] { ctx =>
-    val policy = ctx.client.writePolicyDefault
+    val policy = ttl.fold(ctx.client.writePolicyDefault) { fd =>
+      val updated = new WritePolicy(ctx.client.writePolicyDefault)
+      updated.expiration = fd.toSeconds.toInt
+      updated
+    }
     val keyV   = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
     Either
       .catchNonFatal(
