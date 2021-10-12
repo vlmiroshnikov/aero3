@@ -15,7 +15,7 @@ import io.github.vlmiroshnikov.aero.codecs.{Encoder, Listeners, RecordEncoder}
 def put[F[_], K, V](
     key: K,
     value: V,
-    ttl: Option[FiniteDuration]
+    ttl: Option[FiniteDuration] = None
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],

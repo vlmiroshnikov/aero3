@@ -33,6 +33,23 @@ def get[F[_], K](
   }
 }
 
+def exists[F[_], K](key: K)(using
+                  ac: AeroClient[F],
+                  keyEncoder: Encoder[K],
+                  schema: Schema): F[Boolean] = {
+  ac.run[Boolean] { ctx =>
+
+    val listener = Listeners.existsListener(ctx.callback)
+    val policy   = ctx.client.readPolicyDefault
+    val keyV     = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
+
+    Either
+      .catchNonFatal(ctx.client.exists(ctx.loop, listener, policy, keyV))
+      .leftMap(e => ctx.callback(e.asLeft))
+  }
+}
+
+
 def query[F[_], R](
     stm: Statement,
     magnet: DecoderMagnet
