@@ -44,6 +44,7 @@ def put[F[_], K, V](
 def operate[F[_], R, K](
     ops: List[Operation],
     key: K,
+    ttl: Option[FiniteDuration] = None,
     magnet: DecoderMagnet = DecoderMagnet.unit
   )(using
     ac: AeroClient[F],
@@ -52,9 +53,14 @@ def operate[F[_], R, K](
   ac.run[Option[magnet.Repr]] { ctx =>
     val decoder = magnet.decoder()
 
+    val policy = ttl.fold(ctx.client.writePolicyDefault) { fd =>
+      val updated = new WritePolicy(ctx.client.writePolicyDefault)
+      updated.expiration = fd.toSeconds.toInt
+      updated
+    }
+
     val keyV     = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
     val listener = Listeners.recordOptListener(ctx.callback, decoder.decode(_))
-    val policy   = ctx.client.writePolicyDefault
 
     Either
       .catchNonFatal(ctx.client.operate(ctx.loop, listener, policy, keyV, ops*))

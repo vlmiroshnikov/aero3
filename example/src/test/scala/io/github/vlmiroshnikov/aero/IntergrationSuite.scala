@@ -19,13 +19,14 @@ class IntergrationSuite extends CatsEffectSuite {
 
   given Schema("tss", "report_meta")
 
-  client.test("get") { (ac: AeroClient[IO]) =>
+  client.test("get".ignore) { (ac: AeroClient[IO]) =>
     given AeroClient[IO] = ac
     val rec              = Rec(List("3024fe7c-e0cf-4d67-9065-5cde44297c1f", "12", "34"))
     for {
-      _ <- put("3024fe7c-e0cf-4d67-9065-5cde44297c1f", rec)
-      r <- get("3024fe7c-e0cf-4d67-9065-5cde44297c1f", as[Rec])
+      _ <- put("key1", rec)
+      _ <- put("key2", rec)
+      r <- batch(List("key1", "key2"), as[Rec])
       _ <- IO.println(s"res=$r")
-    } yield assertEquals(r, rec.some)
+    } yield assertEquals(r, List(rec, rec))
   }
 }
