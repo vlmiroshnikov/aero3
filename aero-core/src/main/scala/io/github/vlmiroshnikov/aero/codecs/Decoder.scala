@@ -10,6 +10,7 @@ import scala.compiletime.*
 import scala.deriving.*
 import scala.runtime.BoxedUnit
 import scala.util.{ Failure, Success, Try }
+import scala.jdk.CollectionConverters.*
 
 type Result[T] = Either[Throwable, T]
 
@@ -26,5 +27,19 @@ object Decoder:
     override def decode(r: Record, name: String): Result[R] = decoderF(r, name)
   }
 
+  given [T <: Int | String | Double]: Decoder[List[T]] = new Decoder[List[T]] {
+
+    override def decode(v: Record, name: String): Result[List[T]] = {
+      for {
+        bin <- Option(v.getList(name)).toRight(NotFoundBin(name))
+        lst <- Try(bin.asInstanceOf[java.util.List[T]].asScala.toList).toEither
+      } yield lst
+    }
+  }
+
   given Decoder[Int]    = instance((r, n) => r.getInt(n))
   given Decoder[String] = instance((r, n) => r.getString(n))
+
+case class NotFoundBin(bin: String) extends RuntimeException {
+  override def getMessage: String = s"Not found bin: ${bin}"
+}

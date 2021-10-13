@@ -13,21 +13,19 @@ import munit.*
 
 class IntergrationSuite extends CatsEffectSuite {
 
-  val client = ResourceFixture(AeroClient(List("192.168.1.35"), 3000))
+  val client = ResourceFixture(AeroClient(List("10.232.123.11"), 3000))
 
-  case class Rec(intBin: Int, sbin: String) derives RecordDecoder, RecordEncoder
+  case class Rec(source_sids: List[String]) derives RecordDecoder, RecordEncoder
 
-  given Schema("test", "test")
+  given Schema("tss", "report_meta")
 
-  client.test("get".ignore) { (ac: AeroClient[IO]) =>
+  client.test("get") { (ac: AeroClient[IO]) =>
     given AeroClient[IO] = ac
-    val rec              = Rec(1, "3")
+    val rec              = Rec(List("3024fe7c-e0cf-4d67-9065-5cde44297c1f", "12", "34"))
     for {
-      _ <- put("key", rec)
-      r <- get("key", as[Rec])
-      _ <- operate(
-             MapOperation.put(MapPolicy.Default, "map", asValue("mkey"), asValue("value")) :: Nil,
-             "key")
+      _ <- put("3024fe7c-e0cf-4d67-9065-5cde44297c1f", rec)
+      r <- get("3024fe7c-e0cf-4d67-9065-5cde44297c1f", as[Rec])
+      _ <- IO.println(s"res=$r")
     } yield assertEquals(r, rec.some)
   }
 }
