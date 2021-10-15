@@ -6,6 +6,7 @@ import cats.effect.syntax.all.*
 import com.aerospike.client.async.{ EventLoop, EventPolicy, NioEventLoops }
 import com.aerospike.client.policy.ClientPolicy
 import com.aerospike.client.{ AerospikeClient, Host }
+
 import scala.concurrent.duration.*
 
 trait AeroClient[F[_]]:
@@ -26,25 +27,25 @@ object AeroClient {
       port: Int,
       policy: Policy = Policy.default): Resource[F, AeroClient[F]] = {
 
-    val init  = Async[F].blocking {
-      val cp = new ClientPolicy() {
-        timeout = 10.seconds.toSeconds.toInt
-        tendInterval = 10.seconds.toSeconds.toInt
-        eventLoops = new NioEventLoops(policy.eventPolicy, -1)
+    val init = for {
+      loops <- Resource.fromAutoCloseable(Sync[F].delay(new NioEventLoops(policy.eventPolicy, 2)))
+      cp <- Resource.pure {
+              new ClientPolicy() {
+                timeout = 10.seconds.toSeconds.toInt
+                tendInterval = 10.seconds.toSeconds.toInt
+                eventLoops = loops
+              }
+            }
+      ac <- Resource.fromAutoCloseable(
+              Sync[F].delay(new AerospikeClient(cp, hosts.map(h => new Host(h, port))*)))
+    } yield (ac, cp)
+
+    init.map { (ac, cp) =>
+      new AeroClient[F] {
+        override def run[R](func: Context[R] => Unit): F[R] =
+          summon[Async[F]].async_[R](cb => func(Context(ac, cp.eventLoops.next, cb)))
       }
-      val ac = new AerospikeClient(cp, hosts.map(h => new Host(h, port))*)
-      (ac, cp)
     }
-
-
-    Resource
-      .make[F, (AerospikeClient, ClientPolicy)](init)(rs => Async[F].blocking(rs._1.close()))
-      .map { (ac, cp) =>
-        new AeroClient[F] {
-          override def run[R](func: Context[R] => Unit): F[R] =
-            summon[Async[F]].async_[R](cb => func(Context(ac, cp.eventLoops.next, cb)))
-        }
-      }
   }
 }
 

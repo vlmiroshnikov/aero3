@@ -13,13 +13,13 @@ import munit.*
 
 class IntergrationSuite extends CatsEffectSuite {
 
-  val client = ResourceFixture(AeroClient(List("10.232.123.11"), 3000))
+  val client = ResourceFixture(AeroClient(List("192.168.1.35"), 3000))
 
   case class Rec(source_sids: List[String]) derives RecordDecoder, RecordEncoder
 
-  given Schema("tss", "report_meta")
+  given Schema("test", "report_meta")
 
-  client.test("get".ignore) { (ac: AeroClient[IO]) =>
+  client.test("get") { (ac: AeroClient[IO]) =>
     given AeroClient[IO] = ac
     val rec              = Rec(List("3024fe7c-e0cf-4d67-9065-5cde44297c1f", "12", "34"))
     for {
