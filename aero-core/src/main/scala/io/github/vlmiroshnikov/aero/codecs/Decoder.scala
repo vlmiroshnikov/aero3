@@ -17,6 +17,9 @@ type Result[T] = Either[Throwable, T]
 trait Decoder[T]:
   def decode(v: Record, name: String): Result[T]
 
+trait NestedDecoder[T]:
+  def decode(lst: NestedValue): Result[T]
+
 object Decoder:
 
   def instance[R](decoderF: (Record, String) => R) = new Decoder[R] {
@@ -27,14 +30,16 @@ object Decoder:
     override def decode(r: Record, name: String): Result[R] = decoderF(r, name)
   }
 
-  given [T <: Int | String | Double]: Decoder[List[T]] = new Decoder[List[T]] {
-
-    override def decode(v: Record, name: String): Result[List[T]] = {
-      for {
-        bin <- Option(v.getList(name)).toRight(NotFoundBin(name))
-        lst <- Try(bin.asInstanceOf[java.util.List[T]].asScala.toList).toEither
-      } yield lst
-    }
+  given [T: NestedDecoder]: Decoder[List[T]] = (v: Record, name: String) => {
+    val dec = summon[NestedDecoder[T]]
+    for {
+      bin <- Option(v.getList(name)).toRight(NotFoundBin(name))
+      lst <- Try(bin.asInstanceOf[java.util.List[AnyRef]].asScala).toEither
+      res <- lst.toList.traverse {
+              case nest: java.util.List[PlainType] => dec.decode(nest.asScala.toList)
+              case plain: PlainType => dec.decode(plain)
+            }
+    } yield res
   }
 
   given Decoder[Int]    = instance((r, n) => r.getInt(n))

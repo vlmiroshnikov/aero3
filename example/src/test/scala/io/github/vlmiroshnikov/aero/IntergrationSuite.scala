@@ -11,22 +11,33 @@ import io.github.vlmiroshnikov.aero.writes.*
 import io.github.vlmiroshnikov.aero.codecs.{RecordDecoder, RecordEncoder, asValue}
 import munit.*
 
+
+case class Data(v: String)
 class IntergrationSuite extends CatsEffectSuite {
 
   val client = ResourceFixture(AeroClient(List("192.168.1.35"), 3000))
 
-  case class Rec(source_sids: List[String]) derives RecordDecoder, RecordEncoder
+  given NestedEncoder[Data] = (r: Data) => List("prefix", r.v)
+  given NestedDecoder[Data] = (lst: NestedValue) =>  lst match {
+    case s: String => Data(s).asRight
+    case s : List[String] => Data(s.tail.head).asRight
+    case _ =>   (new Exception()).asLeft
 
-  given Schema("test", "report_meta")
+  }
 
-  client.test("get") { (ac: AeroClient[IO]) =>
+  case class Rec(data: List[Data]) derives RecordEncoder, RecordDecoder
+
+  given Schema("test", "nested")
+
+  client.test("get".ignore) { (ac: AeroClient[IO]) =>
     given AeroClient[IO] = ac
-    val rec              = Rec(List("3024fe7c-e0cf-4d67-9065-5cde44297c1f", "12", "34"))
+    val rec              = Rec(List(Data("a")))
     for {
-      _ <- put("key1", rec)
-      _ <- put("key2", rec)
-      r <- batch(List("key1", "key2"), as[Rec])
+      _ <- put("key", rec)
+      r <- get("key", as[Rec])
+//      _ <- put("key2", rec)
+//      r <- batch(List("key1", "key2"), as[Rec])
       _ <- IO.println(s"res=$r")
-    } yield assertEquals(r, List(rec, rec))
+    } yield  ()//assertEquals(r, List(rec, rec))
   }
 }
