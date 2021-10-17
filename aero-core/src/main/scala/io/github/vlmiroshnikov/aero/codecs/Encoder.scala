@@ -2,34 +2,47 @@ package io.github.vlmiroshnikov.aero.codecs
 
 import com.aerospike.client.Value
 import scala.jdk.CollectionConverters.*
+import java.util.List as JList
 
 trait Encoder[T]:
   def encode(t: T): Value
 
-type PlainType   = Int | Long | String | Double
-type NestedValue = PlainType | List[_ <: PlainType]
+type PlainType  = Int | Long | String | Double | Boolean
+type NestedType = PlainType | List[_]
+
+type NestedValue = PlainType | JList[_]
 
 trait NestedEncoder[T]:
   def encode(r: T): NestedValue
+
+object NestedEncoder:
+
+  given [T <: NestedType]: NestedEncoder[T] = (r: T) => {
+    r match {
+      case v: List[_]   => v.asJava
+      case p: PlainType => p
+    }
+  }
 
 object Encoder:
 
   def instance[T](f: T => Value): Encoder[T] = (t: T) => f(t)
 
+  given Encoder[String] = Encoder.instance(Value.get)
+  given Encoder[Int]    = Encoder.instance(Value.get)
+  given Encoder[Long]   = Encoder.instance(Value.get)
+  given Encoder[Double] = Encoder.instance(Value.get)
+
   given [T: NestedEncoder]: Encoder[List[T]] = (lst: List[T]) => {
     val enc = summon[NestedEncoder[T]]
-    val r = lst.map { v =>
-      enc.encode(v) match {
-        case r: List[_] => r.asJava
-        case p: PlainType => p
-      }
-    }.asJava
-
+    val r   = lst.map { v => enc.encode(v) }.asJava
     Value.get(r)
   }
 
-  given Encoder[String] = Encoder.instance(Value.get)
-  given Encoder[Int]    = Encoder.instance(Value.get)
+  given [K <: PlainType, V: NestedEncoder]: Encoder[Map[K, V]] = (map: Map[K, V]) => {
+    val enc = summon[NestedEncoder[V]]
+    Value.get(map.map((k, v) => (k, enc.encode(v))).asJava)
+  }
 
 object asValue:
   def apply[V](v: V)(using encoder: Encoder[V]): Value = encoder.encode(v)

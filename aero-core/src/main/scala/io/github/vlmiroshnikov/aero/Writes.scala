@@ -9,8 +9,8 @@ import com.aerospike.client.cdt.MapOperation
 import com.aerospike.client.listener.RecordListener
 import com.aerospike.client.policy.WritePolicy
 import io.github.vlmiroshnikov.aero.codecs.*
-import io.github.vlmiroshnikov.aero.{AeroClient, DecoderMagnet, Schema}
-import io.github.vlmiroshnikov.aero.codecs.{Encoder, Listeners, RecordEncoder}
+import io.github.vlmiroshnikov.aero.{ AeroClient, DecoderMagnet, Schema }
+import io.github.vlmiroshnikov.aero.codecs.{ Encoder, Listeners, RecordEncoder }
 
 def put[F[_], K, V](
     key: K,
@@ -27,7 +27,7 @@ def put[F[_], K, V](
       updated.expiration = fd.toSeconds.toInt
       updated
     }
-    val keyV   = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
+    val keyV = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
     Either
       .catchNonFatal(
         ctx
