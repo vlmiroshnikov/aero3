@@ -26,8 +26,8 @@ object Listeners {
       override def onFailure(exception: AerospikeException): Unit = callback(Left(exception))
     }
 
-  def existsListener(callback: Callback[Boolean]) = new ExistsListener {
-    override def onSuccess(key: Key, exists: Boolean): Unit = callback(exists.asRight)
+  def existsListener(callback: Callback[Boolean]): ExistsListener = new ExistsListener {
+    override def onSuccess(key: Key, exists: Boolean): Unit     = callback(exists.asRight)
     override def onFailure(exception: AerospikeException): Unit = callback(exception.asLeft)
   }
 

@@ -20,10 +20,7 @@ object RecordEncoder:
     inline m match
       case mprod: Mirror.ProductOf[A] =>
         lazy val encoders = summonEncodersRec[mprod.MirroredElemTypes]
-        new RecordEncoder[A] {
-          override def encode(v: A): List[Bin] =
-            encodeProduct(v.asInstanceOf[Product], encoders)
-        }
+        (v: A) => encodeProduct(v.asInstanceOf[Product], encoders)
 
       case _ => throw new RuntimeException()
   }

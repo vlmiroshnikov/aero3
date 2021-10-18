@@ -8,25 +8,34 @@ import com.aerospike.client.query.Statement
 import io.github.vlmiroshnikov.aero.codecs.*
 import io.github.vlmiroshnikov.aero.reads.*
 import io.github.vlmiroshnikov.aero.writes.*
-import io.github.vlmiroshnikov.aero.codecs.{RecordDecoder, RecordEncoder, asValue}
 import munit.*
 
-class IntergrationSuite extends CatsEffectSuite {
 
-  val client = ResourceFixture(AeroClient(List("10.232.123.11"), 3000))
+case class Data(v: String)
 
-  case class Rec(source_sids: List[String]) derives RecordDecoder, RecordEncoder
+class IntegrationSuite extends CatsEffectSuite {
 
-  given Schema("tss", "report_meta")
+  val client = ResourceFixture(AeroClient(List("192.168.1.35"), 3000))
 
-  client.test("get".ignore) { (ac: AeroClient[IO]) =>
+  //given NestedEncoder[String] = (r: String) => r
+//  given NestedDecoder[Data] = (lst: NestedValue) =>  lst match {
+//    case s: String => Data(s).asRight
+//    case s : List[String] => Data(s.tail.head).asRight
+//    case _ =>   (new Exception()).asLeft
+//
+//  }
+
+  case class Rec(data: List[List[String]], map: Map[String, List[String]]) derives RecordEncoder, RecordDecoder
+
+  given Schema("test", "nested")
+
+  client.test("get".ignore) { ac =>
     given AeroClient[IO] = ac
-    val rec              = Rec(List("3024fe7c-e0cf-4d67-9065-5cde44297c1f", "12", "34"))
+    val rec              = Rec(List(List("a", "b")), Map("key" -> List("1", "2")))
     for {
-      _ <- put("key1", rec)
-      _ <- put("key2", rec)
-      r <- batch(List("key1", "key2"), as[Rec])
+      _ <- put("key", rec)
+      r <- get("key", as[Rec])
       _ <- IO.println(s"res=$r")
-    } yield assertEquals(r, List(rec, rec))
+    } yield assertEquals(r, rec.some)
   }
 }
