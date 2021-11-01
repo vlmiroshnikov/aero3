@@ -36,6 +36,18 @@ object NestedDecoder:
       case _      => TypeMismatchError(v.toString).asLeft
     }
 
+  given NestedDecoder[Long] = (v: NestedValue) =>
+    v match {
+      case v: Long => v.asRight
+      case _      => TypeMismatchError(v.toString).asLeft
+    }
+
+  given NestedDecoder[Double] = (v: NestedValue) =>
+    v match {
+      case v: Double => v.asRight
+      case _         => TypeMismatchError(v.toString).asLeft
+    }
+
   given [T <: PlainType]: NestedDecoder[List[T]] = (lst: NestedValue) =>
     lst match {
       case v: JList[_] => Right(v.asInstanceOf[JList[T]].asScala.toList)
@@ -78,6 +90,8 @@ object Decoder:
 
   given Decoder[Int]    = instance((r, n) => r.getInt(n))
   given Decoder[String] = instance((r, n) => r.getString(n))
+  given Decoder[Long]   = instance((r, n) => r.getLong(n))
+  given Decoder[Double] = instance((r, n) => r.getDouble(n))
 
 case class NotFoundBin(bin: String) extends RuntimeException {
   override def getMessage: String = s"Not found bin: ${bin}"
