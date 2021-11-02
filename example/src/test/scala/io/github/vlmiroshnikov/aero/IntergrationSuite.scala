@@ -36,7 +36,7 @@ class IntegrationSuite extends CatsEffectSuite {
     for {
       _ <- put("key", rec)
       //r <- get("key", as[Rec])
-      r <-  operate(List(op), "key", None, as[Rec])
+      r <-  operate(List(op), "key", as[Rec])
       _ <- IO.println(s"res=$r")
     } yield assertEquals(r, Rec(List("b", "c")).some)
     }

@@ -15,7 +15,8 @@ import io.github.vlmiroshnikov.aero.codecs.{ Encoder, Listeners, RecordEncoder }
 def put[F[_], K, V](
     key: K,
     value: V,
-    ttl: Option[FiniteDuration] = None
+    ttl: Option[FiniteDuration] = None,
+    sendKey: Boolean = false
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],
@@ -27,6 +28,9 @@ def put[F[_], K, V](
       updated.expiration = fd.toSeconds.toInt
       updated
     }
+
+    policy.sendKey = sendKey
+
     val keyV = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
     Either
       .catchNonFatal(
@@ -44,8 +48,9 @@ def put[F[_], K, V](
 def operate[F[_], R, K](
     ops: List[Operation],
     key: K,
+    magnet: DecoderMagnet = DecoderMagnet.unit,
     ttl: Option[FiniteDuration] = None,
-    magnet: DecoderMagnet = DecoderMagnet.unit
+    sendKey: Boolean = false
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],
@@ -53,11 +58,13 @@ def operate[F[_], R, K](
   ac.run[Option[magnet.Repr]] { ctx =>
     val decoder = magnet.decoder()
 
-    val policy = ttl.fold(ctx.client.writePolicyDefault) { fd =>
-      val updated = new WritePolicy(ctx.client.writePolicyDefault)
-      updated.expiration = fd.toSeconds.toInt
-      updated
-    }
+    val policy =
+      ttl.fold(ctx.client.writePolicyDefault) { fd =>
+        val updated = new WritePolicy(ctx.client.writePolicyDefault)
+        updated.expiration = fd.toSeconds.toInt
+        updated
+      }
+    policy.sendKey = sendKey
 
     val keyV     = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
     val listener = Listeners.recordOptListener(ctx.callback, decoder.decode(_))
