@@ -27,18 +27,20 @@ object AeroClient {
       port: Int,
       policy: Policy = Policy.default): Resource[F, AeroClient[F]] = {
 
-    val init = for {
-      loops <- Resource.fromAutoCloseable(Sync[F].delay(new NioEventLoops(policy.eventPolicy, 2)))
-      cp <- Resource.pure {
-              new ClientPolicy() {
-                timeout = 10.seconds.toSeconds.toInt
-                tendInterval = 10.seconds.toSeconds.toInt
-                eventLoops = loops
+    val init =
+      for
+        loops <-
+          Resource.fromAutoCloseable(Sync[F].delay(new NioEventLoops(policy.eventPolicy, -1)))
+        cp <- Resource.pure {
+                new ClientPolicy() {
+                  timeout = 10.seconds.toSeconds.toInt
+                  tendInterval = 10.seconds.toSeconds.toInt
+                  eventLoops = loops
+                }
               }
-            }
-      ac <- Resource.fromAutoCloseable(
-              Sync[F].delay(new AerospikeClient(cp, hosts.map(h => new Host(h, port))*)))
-    } yield (ac, cp)
+        ac <- Resource.fromAutoCloseable(
+                Sync[F].delay(new AerospikeClient(cp, hosts.map(h => new Host(h, port))*)))
+      yield (ac, cp)
 
     init.map { (ac, cp) =>
       new AeroClient[F] {

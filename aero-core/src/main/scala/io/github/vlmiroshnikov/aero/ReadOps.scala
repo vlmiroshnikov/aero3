@@ -1,4 +1,4 @@
-package io.github.vlmiroshnikov.aero.reads
+package io.github.vlmiroshnikov.aero
 
 import cats.*
 import cats.syntax.all.*
@@ -20,11 +20,10 @@ def get[F[_], K](
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],
-    schema: Schema): F[Option[magnet.Repr]] = {
+    schema: Schema): F[Option[magnet.Repr]] =
   ac.run[Option[magnet.Repr]] { ctx =>
-
     val decoder  = magnet.decoder()
-    val listener = Listeners.recordOptListener(ctx.callback, decoder.decode(_))
+    val listener = Listeners.recordOptListener(ctx.callback, decoder.decode)
     val policy   = ctx.client.readPolicyDefault
     val keyV     = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
 
@@ -32,7 +31,6 @@ def get[F[_], K](
       .catchNonFatal(ctx.client.get(ctx.loop, listener, policy, keyV, decoder.bins*))
       .leftMap(e => ctx.callback(e.asLeft))
   }
-}
 
 def batch[F[_], K](
     keys: List[K],
@@ -40,11 +38,11 @@ def batch[F[_], K](
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],
-    schema: Schema): F[List[magnet.Repr]] = {
+    schema: Schema): F[List[magnet.Repr]] =
   ac.run[List[magnet.Repr]] { ctx =>
 
     val decoder  = magnet.decoder()
-    val listener = Listeners.listListener(ctx.callback, decoder.decode(_))
+    val listener = Listeners.listListener(ctx.callback, decoder.decode)
     val policy   = ctx.client.batchPolicyDefault
 
     def mkKey(key: K) = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
@@ -54,14 +52,13 @@ def batch[F[_], K](
       .catchNonFatal(ctx.client.get(ctx.loop, listener, policy, rawKeys, decoder.bins*))
       .leftMap(e => ctx.callback(e.asLeft))
   }
-}
 
 def exists[F[_], K](
     key: K
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],
-    schema: Schema): F[Boolean] = {
+    schema: Schema): F[Boolean] =
   ac.run[Boolean] { ctx =>
 
     val listener = Listeners.existsListener(ctx.callback)
@@ -72,14 +69,13 @@ def exists[F[_], K](
       .catchNonFatal(ctx.client.exists(ctx.loop, listener, policy, keyV))
       .leftMap(e => ctx.callback(e.asLeft))
   }
-}
 
-def query[F[_], R](
+def query[F[_]](
     stm: Statement,
     magnet: DecoderMagnet
   )(using
     ac: AeroClient[F],
-    schema: Schema): F[List[magnet.Repr]] = {
+    schema: Schema): F[List[magnet.Repr]] =
   ac.run[List[magnet.Repr]] { ctx =>
     val decoder = magnet.decoder()
 
@@ -87,11 +83,10 @@ def query[F[_], R](
     stm.setSetName(schema.set)
     stm.setNamespace(schema.namespace)
 
-    val listener = Listeners.listListener(ctx.callback, decoder.decode(_))
+    val listener = Listeners.listListener(ctx.callback, decoder.decode)
     val policy   = ctx.client.queryPolicyDefault
 
     Either
       .catchNonFatal(ctx.client.query(ctx.loop, listener, policy, stm))
       .leftMap(e => ctx.callback(e.asLeft))
   }
-}

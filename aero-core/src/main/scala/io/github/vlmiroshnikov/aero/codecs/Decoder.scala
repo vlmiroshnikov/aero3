@@ -56,9 +56,10 @@ object NestedDecoder:
 
 object Decoder:
 
-  def instance[R](decoderF: (Record, String) => R) = new Decoder[R] {
-    override def decode(r: Record, name: String): Result[R] = Try(decoderF(r, name)).toEither
-  }
+  def instance[R](decoderF: (Record, String) => R): Decoder[R] =
+    (r: Record, name: String) =>
+      if r.bins.containsKey(name) then Try(decoderF(r, name)).toEither
+      else Left(NotFoundBin(name))
 
   def fromEither[R](decoderF: (Record, String) => Either[Throwable, R]) = new Decoder[R] {
     override def decode(r: Record, name: String): Result[R] = decoderF(r, name)
@@ -98,5 +99,5 @@ case class NotFoundBin(bin: String) extends RuntimeException {
 }
 
 case class TypeMismatchError(v: String) extends RuntimeException {
-  override def getMessage: String = "TypeMismatchError"
+  override def getMessage: String = s"Unexpected value: ${v}"
 }
