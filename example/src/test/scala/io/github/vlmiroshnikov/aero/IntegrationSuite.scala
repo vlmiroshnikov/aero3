@@ -25,7 +25,7 @@ class IntegrationSuite extends CatsEffectSuite {
 
   given Schema("test", "nested")
 
-  client.test("put & get nested list") { ac =>
+  client.test("put & get nested list".ignore) { ac =>
     given AeroClient[IO] = ac
 
     val record = Rec(List("a", "b", "c"), 100.0)
@@ -36,7 +36,7 @@ class IntegrationSuite extends CatsEffectSuite {
     yield assertEquals(listOp, ListData(List("b", "c")).some)
   }
 
-  client.test("put and get") { ac =>
+  client.test("put and get".ignore) { ac =>
     given AeroClient[IO] = ac
 
     val record = Rec(List("a", "b", "c"), 100.0)
