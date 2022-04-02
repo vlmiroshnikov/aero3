@@ -22,7 +22,7 @@ object RecordEncoder:
         lazy val encoders = summonEncodersRec[mprod.MirroredElemTypes]
         (v: A) => encodeProduct(v.asInstanceOf[Product], encoders)
 
-      case _ => throw new RuntimeException()
+      case _ => throw new RuntimeException("Not supported Sum type")
   }
 
   inline final def summonEncodersRec[T <: Tuple]: List[Encoder[_]] =

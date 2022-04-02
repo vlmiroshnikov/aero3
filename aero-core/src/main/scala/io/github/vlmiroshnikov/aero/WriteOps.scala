@@ -1,4 +1,4 @@
-package io.github.vlmiroshnikov.aero.writes
+package io.github.vlmiroshnikov.aero
 
 import scala.concurrent.duration.*
 import cats.*
@@ -45,7 +45,7 @@ def put[F[_], K, V](
   }
 }
 
-def operate[F[_], R, K](
+def operate[F[_], K](
     ops: List[Operation],
     key: K,
     magnet: DecoderMagnet = DecoderMagnet.unit,
@@ -54,10 +54,9 @@ def operate[F[_], R, K](
   )(using
     ac: AeroClient[F],
     keyEncoder: Encoder[K],
-    schema: Schema): F[Option[magnet.Repr]] = {
+    schema: Schema): F[Option[magnet.Repr]] =
   ac.run[Option[magnet.Repr]] { ctx =>
     val decoder = magnet.decoder()
-
     val policy =
       ttl.fold(ctx.client.writePolicyDefault) { fd =>
         val updated = new WritePolicy(ctx.client.writePolicyDefault)
@@ -67,10 +66,9 @@ def operate[F[_], R, K](
     policy.sendKey = sendKey
 
     val keyV     = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
-    val listener = Listeners.recordOptListener(ctx.callback, decoder.decode(_))
+    val listener = Listeners.recordOptListener(ctx.callback, decoder.decode)
 
     Either
       .catchNonFatal(ctx.client.operate(ctx.loop, listener, policy, keyV, ops*))
       .leftMap(e => ctx.callback(e.asLeft))
   }
-}
