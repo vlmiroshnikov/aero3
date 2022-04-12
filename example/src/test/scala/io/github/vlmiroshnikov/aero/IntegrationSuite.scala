@@ -12,14 +12,6 @@ import munit.*
 class IntegrationSuite extends CatsEffectSuite {
 
   val client = ResourceFixture(AeroClient(List("localhost"), 3000))
-  // given NestedEncoder[String] = (r: String) => r
-//  given NestedDecoder[Data] = (lst: NestedValue) =>  lst match {
-//    case s: String => Data(s).asRight
-//    case s : List[String] => Data(s.tail.head).asRight
-//    case _ =>   (new Exception()).asLeft
-//
-//  }
-
   case class Rec(data: List[String], watermark: Double) derives RecordEncoder, RecordDecoder
   case class ListData(data: List[String]) derives RecordDecoder
 
@@ -45,6 +37,12 @@ class IntegrationSuite extends CatsEffectSuite {
       _ <- put("key", record)
       r <- get("key", as[Rec])
     yield assertEquals(r, record.some)
+  }
+
+  client.test("scan ops".ignore) { ac =>
+    given AeroClient[IO] = ac
+
+    scan(as[ListData]).flatMap(IO.println(_))
   }
 }
 

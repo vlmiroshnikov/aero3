@@ -90,3 +90,16 @@ def query[F[_]](
       .catchNonFatal(ctx.client.query(ctx.loop, listener, policy, stm))
       .leftMap(e => ctx.callback(e.asLeft))
   }
+
+def scan[F[_]](magnet: DecoderMagnet)(using ac: AeroClient[F], schema: Schema): F[List[magnet.Repr]] = {
+  ac.run[List[magnet.Repr]] { ctx =>
+    val decoder = magnet.decoder()
+
+    val listener = Listeners.listListener(ctx.callback, decoder.decode)
+    val policy   = ctx.client.scanPolicyDefault
+
+    Either
+      .catchNonFatal(ctx.client.scanAll(ctx.loop, listener, policy, schema.namespace, schema.set, decoder.bins *))
+      .leftMap(e => ctx.callback(e.asLeft))
+  }
+}
