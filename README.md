@@ -1,7 +1,5 @@
 # Simple Aerospike client  ( with scala 3 derivation )
 
-## Simple Aaerispike client scala 3
-
 [![Latest version](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/latest.svg)](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/0.0.7)
 
 
