@@ -2,9 +2,9 @@ import sbt.Keys._
 import sbt._
 
 object Versions {
-  val dotty      = "3.1.1"
-  val cats       = "2.7.0"
-  val catsEffect = "3.3.1"
+  val dotty      = "3.1.3"
+  val cats       = "2.8.0"
+  val catsEffect = "3.3.14"
   val munit      = "0.7.29"
   val aerospike  = "5.1.11"
 }
