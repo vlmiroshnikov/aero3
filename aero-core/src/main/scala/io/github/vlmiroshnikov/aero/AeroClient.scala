@@ -33,8 +33,6 @@ object AeroClient {
           Resource.fromAutoCloseable(Sync[F].delay(new NioEventLoops(policy.eventPolicy, -1)))
         cp <- Resource.pure {
                 new ClientPolicy() {
-                  timeout = 10.seconds.toSeconds.toInt
-                  tendInterval = 10.seconds.toSeconds.toInt
                   eventLoops = loops
                 }
               }
