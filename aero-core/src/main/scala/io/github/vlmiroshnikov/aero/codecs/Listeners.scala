@@ -31,6 +31,16 @@ object Listeners {
     override def onFailure(exception: AerospikeException): Unit = callback(exception.asLeft)
   }
 
+  def deleteListener(callback: Callback[Boolean]): DeleteListener =
+    new DeleteListener {
+
+      override def onSuccess(key: Key, existed: Boolean): Unit =
+        callback(existed.asRight)
+
+      override def onFailure(exception: AerospikeException): Unit =
+        callback(Left(exception))
+    }
+
   def recordOptListener[V](
       callback: Callback[Option[V]],
       encoder: Record => Either[Throwable, V]): RecordListener =
