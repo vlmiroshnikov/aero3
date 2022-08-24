@@ -1,9 +1,9 @@
 package io.github.vlmiroshnikov.aero
 
 import cats.*
-import cats.effect.{Async, IO, IOApp}
+import cats.effect.{ Async, IO, IOApp }
 import cats.syntax.all.*
-import com.aerospike.client.cdt.{ListOperation, ListReturnType, MapOperation, MapPolicy}
+import com.aerospike.client.cdt.{ ListOperation, ListReturnType, MapOperation, MapPolicy }
 import com.aerospike.client.query.Statement
 import io.github.vlmiroshnikov.aero.codecs.*
 import io.github.vlmiroshnikov.aero.*
@@ -11,7 +11,7 @@ import munit.*
 
 class IntegrationSuite extends CatsEffectSuite {
 
-  val client = ResourceFixture(AeroClient(List("10.232.123.11"), 3000))
+  val client = ResourceFixture(AeroClient(List("localhost"), 3000))
   case class Rec(data: List[String], watermark: Double) derives RecordEncoder, RecordDecoder
   case class ListData(data: List[String]) derives RecordDecoder
 
@@ -34,18 +34,23 @@ class IntegrationSuite extends CatsEffectSuite {
     val record = Rec(List("a", "b", "c"), 100.0)
 
     for
-      _ <- put("key", record)
-      r <- get("key", as[Rec])
-    yield assertEquals(r, record.some)
+      _  <- put("key", record)
+      r  <- get("key", as[Rec])
+      _  <- delete("key")
+      r1 <- get("key", as[Rec])
+    yield {
+      assertEquals(r, record.some)
+      assertEquals(r1, None)
+    }
   }
 
   client.test("scan ops".ignore) { ac =>
     given AeroClient[IO] = ac
 
-    scanWithKey(as[ListData]).flatMap(IO.println(_))
+    val record = Rec(List("a", "b", "c"), 100.0)
+    for
+      _  <- put("key", record)
+      _  <- scanWithKey(as[ListData]).flatMap(IO.println(_))
+    yield ()
   }
 }
-
-
-
-

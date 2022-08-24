@@ -24,35 +24,30 @@ trait NestedDecoder[T]:
 
 object NestedDecoder:
 
-  given NestedDecoder[String] = (v: NestedValue) =>
-    v match {
-      case v: String => v.asRight
-      case _         => TypeMismatchError(v.toString).asLeft
-    }
+  given NestedDecoder[String] = {
+    case v: String => v.asRight
+    case v         => TypeMismatchError(v.toString).asLeft
+  }
 
-  given NestedDecoder[Int] = (v: NestedValue) =>
-    v match {
-      case v: Int => v.asRight
-      case _      => TypeMismatchError(v.toString).asLeft
-    }
+  given NestedDecoder[Int] = {
+    case v: Int => v.asRight
+    case v      => TypeMismatchError(v.toString).asLeft
+  }
 
-  given NestedDecoder[Long] = (v: NestedValue) =>
-    v match {
-      case v: Long => v.asRight
-      case _      => TypeMismatchError(v.toString).asLeft
-    }
+  given NestedDecoder[Long] = {
+    case v: Long => v.asRight
+    case v       => TypeMismatchError(v.toString).asLeft
+  }
 
-  given NestedDecoder[Double] = (v: NestedValue) =>
-    v match {
-      case v: Double => v.asRight
-      case _         => TypeMismatchError(v.toString).asLeft
-    }
+  given NestedDecoder[Double] = {
+    case v: Double => v.asRight
+    case v         => TypeMismatchError(v.toString).asLeft
+  }
 
-  given [T <: PlainType]: NestedDecoder[List[T]] = (lst: NestedValue) =>
-    lst match {
-      case v: JList[_] => Right(v.asInstanceOf[JList[T]].asScala.toList)
-      case _           => TypeMismatchError(lst.toString).asLeft[List[T]]
-    }
+  given [T <: PlainType]: NestedDecoder[List[T]] = {
+    case v: JList[_] => Right(v.asInstanceOf[JList[T]].asScala.toList)
+    case lst         => TypeMismatchError(lst.toString).asLeft[List[T]]
+  }
 
 object Decoder:
 
