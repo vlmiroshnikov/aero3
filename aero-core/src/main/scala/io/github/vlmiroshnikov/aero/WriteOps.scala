@@ -45,6 +45,23 @@ def put[F[_], K, V](
   }
 }
 
+def delete[F[_], K](
+    key: K
+  )(using
+    ac: AeroClient[F],
+    keyEncoder: Encoder[K],
+    schema: Schema): F[Boolean] =
+  ac.run[Boolean] { ctx =>
+    val policy = ctx.client.writePolicyDefault
+
+    val keyV     = new Key(schema.namespace, schema.set, keyEncoder.encode(key))
+    val listener = Listeners.deleteListener(ctx.callback)
+
+    Either
+      .catchNonFatal(ctx.client.delete(ctx.loop, listener, policy, keyV))
+      .leftMap(e => ctx.callback(e.asLeft))
+  }
+
 def operate[F[_], K](
     ops: List[Operation],
     key: K,
