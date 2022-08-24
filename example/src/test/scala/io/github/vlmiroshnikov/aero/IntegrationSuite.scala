@@ -11,7 +11,7 @@ import munit.*
 
 class IntegrationSuite extends CatsEffectSuite {
 
-  val client = ResourceFixture(AeroClient(List("localhost"), 3000))
+  val client = ResourceFixture(AeroClient(List("10.232.123.11"), 3000))
   case class Rec(data: List[String], watermark: Double) derives RecordEncoder, RecordDecoder
   case class ListData(data: List[String]) derives RecordDecoder
 
@@ -23,7 +23,7 @@ class IntegrationSuite extends CatsEffectSuite {
     val record = Rec(List("a", "b", "c"), 100.0)
     val op = ListOperation.getByValueRange("data", asValue("b"), asValue("d"), ListReturnType.VALUE)
     for
-      _      <- put("key", record)
+      _      <- put("key", record, sendKey = true)
       listOp <- operate(List(op), "key", as[ListData])
     yield assertEquals(listOp, ListData(List("b", "c")).some)
   }
@@ -42,7 +42,7 @@ class IntegrationSuite extends CatsEffectSuite {
   client.test("scan ops".ignore) { ac =>
     given AeroClient[IO] = ac
 
-    scan(as[ListData]).flatMap(IO.println(_))
+    scanWithKey(as[ListData]).flatMap(IO.println(_))
   }
 }
 
