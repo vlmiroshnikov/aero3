@@ -1,6 +1,6 @@
 # Simple Aerospike client  ( with scala 3 derivation )
 
-[![Latest version](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/latest.svg)](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/0.0.7)
+[![Latest version](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/latest.svg)](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/0.0.12)
 
 
 ## Install
