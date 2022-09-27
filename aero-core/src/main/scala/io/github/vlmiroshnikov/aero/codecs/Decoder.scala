@@ -60,6 +60,13 @@ object Decoder:
     override def decode(r: Record, name: String): Result[R] = decoderF(r, name)
   }
 
+  given Functor[NestedDecoder] = new Functor[NestedDecoder] {
+
+    override def map[A, B](fa: NestedDecoder[A])(f: A => B): NestedDecoder[B] =
+      new NestedDecoder[B]:
+        override def decode(lst: NestedValue): Result[B] = fa.decode(lst).map(f)
+  }
+
   given [K <: PlainType, V: NestedDecoder]: Decoder[Map[K, V]] = (v: Record, name: String) => {
     val dec = summon[NestedDecoder[V]]
     for {
@@ -84,10 +91,11 @@ object Decoder:
     } yield res
   }
 
-  given Decoder[Int]    = instance((r, n) => r.getInt(n))
-  given Decoder[String] = instance((r, n) => r.getString(n))
-  given Decoder[Long]   = instance((r, n) => r.getLong(n))
-  given Decoder[Double] = instance((r, n) => r.getDouble(n))
+  given Decoder[Int]     = instance((r, n) => r.getInt(n))
+  given Decoder[String]  = instance((r, n) => r.getString(n))
+  given Decoder[Long]    = instance((r, n) => r.getLong(n))
+  given Decoder[Double]  = instance((r, n) => r.getDouble(n))
+  given Decoder[Boolean] = instance((r, n) => r.getBoolean(n))
 
 case class NotFoundBin(bin: String) extends RuntimeException {
   override def getMessage: String = s"Not found bin: ${bin}"

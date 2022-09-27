@@ -3,6 +3,7 @@ package io.github.vlmiroshnikov.aero.codecs
 import com.aerospike.client.Value
 import scala.jdk.CollectionConverters.*
 import java.util.List as JList
+import cats.Contravariant
 
 trait Encoder[T]:
   def encode(t: T): Value
@@ -24,14 +25,22 @@ object NestedEncoder:
     }
   }
 
+  given Contravariant[NestedEncoder] = new Contravariant[NestedEncoder] {
+
+    override def contramap[A, B](fa: NestedEncoder[A])(f: B => A): NestedEncoder[B] =
+      new NestedEncoder[B]:
+        override def encode(r: B): NestedValue = fa.encode(f(r))
+  }
+
 object Encoder:
 
   def instance[T](f: T => Value): Encoder[T] = (t: T) => f(t)
 
-  given Encoder[String] = Encoder.instance(Value.StringValue(_))
-  given Encoder[Int]    = Encoder.instance(Value.IntegerValue(_))
-  given Encoder[Long]   = Encoder.instance(Value.LongValue(_))
-  given Encoder[Double] = Encoder.instance(Value.DoubleValue(_))
+  given Encoder[String]  = Encoder.instance(Value.StringValue(_))
+  given Encoder[Int]     = Encoder.instance(Value.IntegerValue(_))
+  given Encoder[Long]    = Encoder.instance(Value.LongValue(_))
+  given Encoder[Double]  = Encoder.instance(Value.DoubleValue(_))
+  given Encoder[Boolean] = Encoder.instance(Value.BooleanValue(_))
 
   given [T: NestedEncoder]: Encoder[List[T]] = (lst: List[T]) => {
     val enc = summon[NestedEncoder[T]]
