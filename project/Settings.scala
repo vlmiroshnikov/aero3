@@ -18,6 +18,6 @@ object Settings {
   lazy val cats        = Seq("org.typelevel" %% "cats-core").map(_ % Versions.cats)
   lazy val catsEffect  = Seq("org.typelevel" %% "cats-effect").map(_ % Versions.catsEffect)
   lazy val munit       = Seq("org.scalameta" %% "munit" % Versions.munit % Test)
-  lazy val munitEffect = Seq("org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % "test")
+  lazy val munitEffect = Seq("org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test)
   lazy val aerospike   = Seq("com.aerospike" % "aerospike-client" % Versions.aerospike)
 }

@@ -43,7 +43,7 @@ object SimpleApp extends IOApp.Simple {
 
 
 ## Dependencies
-* scala 3.1.0
+* scala 3.*
 * cats 
 * aerospike 5.*
  
