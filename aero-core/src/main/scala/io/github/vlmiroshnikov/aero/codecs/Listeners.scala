@@ -27,8 +27,8 @@ object Listeners {
     }
 
   def scanListener[V](
-                       callback: Callback[List[(Key, V)]],
-                       encoder: Record => Either[Throwable, V]): RecordSequenceListener =
+      callback: Callback[List[(Key, V)]],
+      encoder: Record => Either[Throwable, V]): RecordSequenceListener =
     new RecordSequenceListener {
 
       val buffer = new LinkedBlockingQueue[(Key, V)]()

@@ -1,6 +1,6 @@
 # Simple Aerospike client  ( with scala 3 derivation )
 
-[![Latest version](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/latest.svg)](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/0.0.7)
+[![Latest version](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/latest.svg)](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/0.0.12)
 
 
 ## Install
@@ -43,7 +43,7 @@ object SimpleApp extends IOApp.Simple {
 
 
 ## Dependencies
-* scala 3.1.0
+* scala 3.*
 * cats 
 * aerospike 5.*
  
