@@ -1,4 +1,4 @@
-# Simple Aerospike async effectfull client for scala ( with scala 3 derivation )
+# Simple Aerospike async client for scala ( with scala 3 derivation )
 
 [![Latest version](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/latest.svg)](https://index.scala-lang.org/vlmiroshnikov/aero3/aero-core/0.0.12)
 
