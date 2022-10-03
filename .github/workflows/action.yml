@@ -4,5 +4,5 @@ runs:
   using: 'docker'
   image: 'aerospike:ce-6.1.0.1'
   args:
-  - port: 3000-3002:3000-3002
+  - 'port: 3000-3002:3000-3002'
 
