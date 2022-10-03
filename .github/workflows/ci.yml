@@ -22,6 +22,22 @@ jobs:
         scala: [3.2.0]
         java: [openjdk@1.17.0]
     runs-on: ${{ matrix.os }}
+
+    services:
+      # Label used to access the service container
+      aerospike:
+        # Docker Hub image
+        image: aerospike:ce-6.1.0.1
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "aql -h localhost -c 'show sets'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 3000 on service container to the host
+          - 3000:3000
+
     steps:
       - name: Checkout current branch (full)
         uses: actions/checkout@v2

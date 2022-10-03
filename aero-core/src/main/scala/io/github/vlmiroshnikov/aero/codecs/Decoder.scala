@@ -1,11 +1,10 @@
 package io.github.vlmiroshnikov.aero.codecs
 
 import java.util.List as JList
-
 import cats.*
 import cats.data.*
 import cats.syntax.all.*
-import com.aerospike.client.{ Bin, Record, Value }
+import com.aerospike.client.{ Bin, Key, Record, Value }
 import io.github.vlmiroshnikov.aero.DecoderMagnet
 
 import scala.compiletime.*
@@ -15,6 +14,16 @@ import scala.util.{ Failure, Success, Try }
 import scala.jdk.CollectionConverters.*
 
 type Result[T] = Either[Throwable, T]
+
+trait KeyDecoder[V]:
+  def decode(k: Key): Result[V]
+
+object KeyDecoder:
+  def from[V](f: Key => V): KeyDecoder[V] = (k: Key) => Try(f(k)).toEither
+
+  given Identity: KeyDecoder[Key] = from(identity)
+  given KeyDecoder[Int]           = from(k => k.userKey.toInteger)
+  given KeyDecoder[String]        = from(k => k.userKey.toString)
 
 trait Decoder[T]:
   def decode(v: Record, name: String): Result[T]

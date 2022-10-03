@@ -26,15 +26,19 @@ object Listeners {
       override def onFailure(exception: AerospikeException): Unit = callback(Left(exception))
     }
 
-  def scanListener[V](
-      callback: Callback[List[(Key, V)]],
+  def scanListener[K, V](
+      callback: Callback[List[(K, V)]],
+      keyDecoder: Key => Either[Throwable, K],
       encoder: Record => Either[Throwable, V]): RecordSequenceListener =
     new RecordSequenceListener {
 
-      val buffer = new LinkedBlockingQueue[(Key, V)]()
+      val buffer = new LinkedBlockingQueue[(K, V)]()
 
       override def onRecord(key: Key, record: Record): Unit =
-        encoder(record).foreach(v => buffer.put(key -> v))
+        for
+          k <- keyDecoder(key)
+          v <- encoder(record)
+        yield buffer.put(k -> v)
 
       override def onSuccess(): Unit = callback(Right(buffer.asScala.toList))
 

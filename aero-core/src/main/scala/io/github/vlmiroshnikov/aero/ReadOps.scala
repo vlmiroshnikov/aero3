@@ -109,15 +109,16 @@ def scan[F[_]](
   }
 }
 
-def scanWithKey[F[_]](
+def scanWithKey[F[_], K](
     magnet: DecoderMagnet
   )(using
     ac: AeroClient[F],
-    schema: Schema): F[List[(Key, magnet.Repr)]] = {
-  ac.run[List[(Key, magnet.Repr)]] { ctx =>
+    keyDecoder: KeyDecoder[K],
+    schema: Schema): F[List[(K, magnet.Repr)]] = {
+  ac.run[List[(K, magnet.Repr)]] { ctx =>
     val decoder = magnet.decoder()
 
-    val listener = Listeners.scanListener(ctx.callback, decoder.decode)
+    val listener = Listeners.scanListener(ctx.callback, keyDecoder.decode, decoder.decode)
     val policy   = ctx.client.scanPolicyDefault
 
     Either
