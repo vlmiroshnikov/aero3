@@ -33,9 +33,8 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
 
-      - name: Startup AS
+      - name: Startup aerospike
         uses: ./.github/workflows
-        id: AS
 
       - run: sbt ++${{ matrix.scala }} compile
       - run: sbt ++${{ matrix.scala }} test
