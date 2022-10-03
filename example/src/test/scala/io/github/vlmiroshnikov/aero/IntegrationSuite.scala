@@ -17,7 +17,7 @@ class IntegrationSuite extends CatsEffectSuite {
 
   given Schema("test", "nested")
 
-  client.test("put & get nested list".ignore) { ac =>
+  client.test("put & get nested list") { ac =>
     given AeroClient[IO] = ac
 
     val record = Rec(List("a", "b", "c"), 100.0)
