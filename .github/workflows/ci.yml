@@ -33,6 +33,10 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
 
+      - name: Startup AS
+        uses: ./
+        id: AS
+
       - run: sbt ++${{ matrix.scala }} compile
       - run: sbt ++${{ matrix.scala }} test
      

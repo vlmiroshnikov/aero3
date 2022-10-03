@@ -1,0 +1,9 @@
+name: aerospike-server
+description: 'Run aerospike CE node'
+runs:
+  using: 'docker'
+  image: 'aerospike/aerospike-server'
+  args:
+  - '-name aerospike'
+  - '-p 3000-3002:3000-3002'
+
