@@ -14,6 +14,8 @@ env:
   PGP_SECRET: ${{ secrets.PGP_SECRET }}
 
 jobs:
+
+
   build:
     name: Build and Test
     strategy:
@@ -22,6 +24,12 @@ jobs:
         scala: [3.2.0]
         java: [openjdk@1.17.0]
     runs-on: ${{ matrix.os }}
+
+    container: ubuntu-latest
+      services:
+        aerospike:
+          image: aerospike:ce-6.1.0.1
+
     steps:
       - name: Checkout current branch (full)
         uses: actions/checkout@v2
@@ -32,9 +40,6 @@ jobs:
         uses: olafurpg/setup-scala@v10
         with:
           java-version: ${{ matrix.java }}
-
-      - name: Startup aerospike
-        uses: ./.github/workflows
 
       - run: sbt ++${{ matrix.scala }} compile
       - run: sbt ++${{ matrix.scala }} test
