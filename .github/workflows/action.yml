@@ -2,7 +2,7 @@ name: aerospike-server
 description: 'Run aerospike CE node'
 runs:
   using: 'docker'
-  image: 'aerospike/aerospike-server'
+  image: 'aerospike:ce-6.1.0.1'
   args:
   - '-name aerospike'
   - '-p 3000-3002:3000-3002'
