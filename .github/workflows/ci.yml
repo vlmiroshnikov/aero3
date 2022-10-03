@@ -34,7 +34,7 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - name: Startup AS
-        uses: ./
+        uses: ./.github/workflows
         id: AS
 
       - run: sbt ++${{ matrix.scala }} compile
