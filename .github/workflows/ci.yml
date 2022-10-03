@@ -35,7 +35,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps port 6379 on service container to the host
+          # Maps port 3000 on service container to the host
           - 3000:3000
 
     steps:
