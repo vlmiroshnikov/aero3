@@ -18,18 +18,15 @@ trait NestedEncoder[T]:
 
 object NestedEncoder:
 
-  given [T <: NestedType]: NestedEncoder[T] = (r: T) => {
-    r match {
-      case v: List[_]   => v.asJava
-      case p: PlainType => p
-    }
+  given [T <: NestedType]: NestedEncoder[T] = {
+    case v: List[_]   => v.asJava
+    case p: PlainType => p
   }
 
   given Contravariant[NestedEncoder] = new Contravariant[NestedEncoder] {
 
     override def contramap[A, B](fa: NestedEncoder[A])(f: B => A): NestedEncoder[B] =
-      new NestedEncoder[B]:
-        override def encode(r: B): NestedValue = fa.encode(f(r))
+      (r: B) => fa.encode(f(r))
   }
 
 object Encoder:

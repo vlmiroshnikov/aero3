@@ -65,15 +65,13 @@ object Decoder:
       if r.bins.containsKey(name) then Try(decoderF(r, name)).toEither
       else Left(NotFoundBin(name))
 
-  def fromEither[R](decoderF: (Record, String) => Either[Throwable, R]) = new Decoder[R] {
-    override def decode(r: Record, name: String): Result[R] = decoderF(r, name)
-  }
+  def fromEither[R](decoderF: (Record, String) => Either[Throwable, R]): Decoder[R] =
+    (r: Record, name: String) => decoderF(r, name)
 
   given Functor[NestedDecoder] = new Functor[NestedDecoder] {
 
     override def map[A, B](fa: NestedDecoder[A])(f: A => B): NestedDecoder[B] =
-      new NestedDecoder[B]:
-        override def decode(lst: NestedValue): Result[B] = fa.decode(lst).map(f)
+      (lst: NestedValue) => fa.decode(lst).map(f)
   }
 
   given [K <: PlainType, V: NestedDecoder]: Decoder[Map[K, V]] = (v: Record, name: String) => {
@@ -90,14 +88,14 @@ object Decoder:
 
   given [T: NestedDecoder]: Decoder[List[T]] = (v: Record, name: String) => {
     val dec = summon[NestedDecoder[T]]
-    for {
+    for
       bin <- Option(v.getList(name)).toRight(NotFoundBin(name))
       lst <- Try(bin.asInstanceOf[java.util.List[AnyRef]].asScala).toEither
       res <- lst.toList.traverse {
                case nest: java.util.List[PlainType] => dec.decode(nest)
                case plain: PlainType                => dec.decode(plain)
              }
-    } yield res
+    yield res
   }
 
   given Decoder[Int]     = instance((r, n) => r.getInt(n))
@@ -107,9 +105,9 @@ object Decoder:
   given Decoder[Boolean] = instance((r, n) => r.getBoolean(n))
 
 case class NotFoundBin(bin: String) extends RuntimeException {
-  override def getMessage: String = s"Not found bin: ${bin}"
+  override def getMessage: String = s"Not found bin: $bin"
 }
 
 case class TypeMismatchError(v: String) extends RuntimeException {
-  override def getMessage: String = s"Unexpected value: ${v}"
+  override def getMessage: String = s"Unexpected value: $v"
 }
