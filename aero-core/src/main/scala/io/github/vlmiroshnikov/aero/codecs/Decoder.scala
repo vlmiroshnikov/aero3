@@ -80,8 +80,8 @@ object Decoder:
       bin <- Option(v.getMap(name)).toRight(NotFoundBin(name))
       lst <- Try(bin.asInstanceOf[java.util.Map[K, AnyRef]].asScala).toEither
       res <- lst.toList.traverse {
-               case (key, nest: java.util.List[NestedValue]) => dec.decode(nest).map(v => key -> v)
-               case (key, plain: PlainType)                  => dec.decode(plain).map(v => key -> v)
+               case (key, nest: java.util.List[_]) => dec.decode(nest).map(v => key -> v)
+               case (key, plain: PlainType)        => dec.decode(plain).map(v => key -> v)
              }
     } yield res.toMap[K, V]
   }
@@ -92,8 +92,8 @@ object Decoder:
       bin <- Option(v.getList(name)).toRight(NotFoundBin(name))
       lst <- Try(bin.asInstanceOf[java.util.List[AnyRef]].asScala).toEither
       res <- lst.toList.traverse {
-               case nest: java.util.List[PlainType] => dec.decode(nest)
-               case plain: PlainType                => dec.decode(plain)
+               case nest: java.util.List[_] => dec.decode(nest)
+               case plain: PlainType        => dec.decode(plain)
              }
     yield res
   }
