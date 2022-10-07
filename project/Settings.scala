@@ -6,7 +6,7 @@ object Versions {
   val cats       = "2.8.0"
   val catsEffect = "3.3.14"
   val munit      = "0.7.29"
-  val aerospike  = "5.1.11"
+  val aerospike  = "6.1.2"
 }
 
 object Settings {
