@@ -21,9 +21,9 @@ trait KeyDecoder[V]:
 object KeyDecoder:
   def from[V](f: Key => V): KeyDecoder[V] = (k: Key) => Try(f(k)).toEither
 
-  given Identity: KeyDecoder[Key] = from(identity)
-  given KeyDecoder[Int]           = from(k => k.userKey.toInteger)
-  given KeyDecoder[String]        = from(k => k.userKey.toString)
+  given KeyDecoder[Key]    = from(identity)
+  given KeyDecoder[Int]    = from(k => k.userKey.toInteger)
+  given KeyDecoder[String] = from(k => k.userKey.toString)
 
 trait Decoder[T]:
   def decode(v: Record, name: String): Result[T]
