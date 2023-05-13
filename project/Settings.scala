@@ -1,11 +1,11 @@
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 
 object Versions {
-  val dotty      = "3.2.0"
-  val cats       = "2.8.0"
-  val catsEffect = "3.3.14"
-  val munit      = "0.7.29"
+  val dotty      = "3.2.2"
+  val cats       = "2.9.0"
+  val catsEffect = "3.4.11"
+  val munit      = "1.0.0-M7"
   val aerospike  = "6.1.2"
 }
 

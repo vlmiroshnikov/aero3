@@ -67,8 +67,8 @@ class IntegrationSuite extends CatsEffectSuite {
 
     ac.run[Int] { ctx =>
       val task = ctx
-            .client
-            .registerUdfString(ctx.client.writePolicyDefault, code, "udf.lua", Language.LUA)
+        .client
+        .registerUdfString(ctx.client.writePolicyDefault, code, "udf.lua", Language.LUA)
       ctx.callback(task.queryStatus().asRight)
     }
   }

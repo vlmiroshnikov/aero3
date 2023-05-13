@@ -1,7 +1,7 @@
-import Settings._
-import xerial.sbt.Sonatype._
+import Settings.*
+import xerial.sbt.Sonatype.*
 
-val versionV = "0.0.12"
+val versionV = "0.0.13"
 
 ThisBuild / version      := versionV
 ThisBuild / scalaVersion := Versions.dotty
@@ -9,7 +9,7 @@ ThisBuild / scalaVersion := Versions.dotty
 ThisBuild / githubWorkflowTargetTags           ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")))
 ThisBuild / githubWorkflowPublish               := Seq(WorkflowStep.Sbt(List("release")))
-ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"))
+ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(List("compile"))
 )
