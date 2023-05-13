@@ -49,8 +49,8 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
 
-      - run: sbt ++${{ matrix.scala }} compile
-      - run: sbt ++${{ matrix.scala }} test
+      - run: sbt compile
+      - run: sbt test
      
   publish:
     name: Publish Artifacts
@@ -77,6 +77,6 @@ jobs:
         run: echo $PGP_SECRET | base64 -d | gpg --batch --import --verbose
 
       - name: Release 
-        run: sbt ++${{ matrix.scala }} release
+        run: sbt release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
